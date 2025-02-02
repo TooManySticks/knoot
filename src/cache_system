@@ -1,0 +1,30 @@
+import time
+from collections import OrderedDict
+
+class LRUCache:
+    # • Initialize with capacity and time-to-live; use OrderedDict for caching
+    def __init__(self, capacity=100, ttl=300):
+        self.capacity = capacity
+        self.ttl = ttl
+        self.cache = OrderedDict()
+
+    # • Retrieve value for key if within TTL; update recency or delete expired entry
+    def get(self, key):
+        current_time = time.time()
+        if key in self.cache:
+            value, timestamp = self.cache[key]
+            if current_time - timestamp < self.ttl:
+                self.cache.move_to_end(key)
+                return value
+            else:
+                del self.cache[key]
+        return None
+
+    # • Set key with current timestamp; maintain capacity by evicting least recently used item
+    def set(self, key, value):
+        current_time = time.time()
+        if key in self.cache:
+            self.cache.move_to_end(key)
+        self.cache[key] = (value, current_time)
+        if len(self.cache) > self.capacity:
+            self.cache.popitem(last=False)

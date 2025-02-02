@@ -1,0 +1,136 @@
+import asyncio
+import logging
+import random
+
+logging.basicConfig(level=logging.INFO)
+
+class Worker:
+    # • Execute a given task, simulate delay, log execution, and return result string
+    async def execute(self, task):
+        await asyncio.sleep(0.1)
+        logging.info(f"Worker: Executed task '{task}'.")
+        return f"Result for {task}"
+
+
+class AdvancedWorkerPool:
+    # • Initialize pool with a fixed number of Worker instances
+    def __init__(self, pool_size=5):
+        self.pool_size = pool_size
+        self.workers = [Worker() for _ in range(pool_size)]
+
+    # • Select and return a random worker from the pool, log selection
+    async def get_worker(self):
+        worker = random.choice(self.workers)
+        logging.info("AdvancedWorkerPool: Worker selected.")
+        return worker
+
+    # • Simulate lifecycle management, log action, and return success status
+    async def manage_lifecycle(self):
+        await asyncio.sleep(0.05)
+        logging.info("AdvancedWorkerPool: Lifecycle management complete.")
+        return True
+
+    # • Schedule tasks based on length (prioritize shorter tasks), log and return sorted list
+    async def complex_task_scheduling(self, tasks):
+        prioritized = sorted(tasks, key=lambda t: len(t))
+        logging.info(f"AdvancedWorkerPool: Scheduled tasks: {prioritized}")
+        return prioritized
+
+
+class SharedStateManager:
+    # • Initialize an empty state dictionary
+    def __init__(self):
+        self.state = {}
+
+    # • Update state with key-value pair and log the update
+    def update(self, key, value):
+        self.state[key] = value
+        logging.info(f"SharedStateManager: Updated {key} -> {value}")
+
+
+class LoadBalancer:
+    # • Initialize with a worker pool instance
+    def __init__(self, worker_pool):
+        self.worker_pool = worker_pool
+
+    # • Return a worker using the worker pool's get_worker method
+    async def get_worker(self):
+        return await self.worker_pool.get_worker()
+
+
+class DistributionManager:
+    # • Initialize components: advanced worker pool, state manager, load balancer, and dummy services
+    def __init__(self):
+        self.worker_pool = AdvancedWorkerPool(pool_size=5)
+        self.state_manager = SharedStateManager()
+        self.load_balancer = LoadBalancer(self.worker_pool)
+        self.analyzer = type("DummyAnalyzer", (), {
+            "get_content_type": lambda self: asyncio.sleep(0.05) or "text",
+            "assess_health": lambda self, hs: asyncio.sleep(0.05) or (any(x != "Healthy" for x in hs))
+        })()
+        self.locator = type("DummyLocator", (), {
+            "get_location": lambda self: asyncio.sleep(0.05) or "US-East"
+        })()
+        self.router = type("DummyRouter", (), {
+            "route_request": lambda self, content, geo: asyncio.sleep(0.05) or f"Routed based on {content} and {geo}"
+        })()
+        self.monitor = type("DummyMonitor", (), {
+            "check_workers": lambda self: asyncio.sleep(0.05) or "Healthy",
+            "get_resource_usage": lambda self: asyncio.sleep(0.05) or random.uniform(0.5, 0.9)
+        })()
+        self.predictor = type("DummyPredictor", (), {
+            "forecast_needs": lambda self, usage: asyncio.sleep(0.05) or {"needs": usage * 1.1}
+        })()
+        self.allocator = type("DummyAllocator", (), {
+            "adjust_resources": lambda self, prediction: asyncio.sleep(0.05) or prediction
+        })()
+
+    # • Enhanced load balancing: get content type and geo-location, route request, log, and return route string
+    async def enhanced_load_balancing(self):
+        content_type = await self.analyzer.get_content_type()
+        geo_location = await self.locator.get_location()
+        route = await self.router.route_request(content_type, geo_location)
+        logging.info(f"DistributionManager: Enhanced load balancing result: {route}")
+        return route
+
+    # • Manage worker lifecycle: check worker health, trigger recovery if needed, log, and return status
+    async def worker_lifecycle_management(self):
+        health_status = await self.monitor.check_workers()
+        recovery_needed = await self.analyzer.assess_health([health_status])
+        if recovery_needed:
+            await asyncio.sleep(0.05)
+            logging.info("DistributionManager: Worker recovery executed.")
+            return "Recovered"
+        logging.info("DistributionManager: Worker lifecycle OK.")
+        return "Healthy"
+
+    # • Optimize resource distribution: get usage, forecast needs, adjust resources, log, and return adjustment details
+    async def optimize_resources_distribution(self):
+        usage = await self.monitor.get_resource_usage()
+        prediction = await self.predictor.forecast_needs(usage)
+        adjustment = await self.allocator.adjust_resources(prediction)
+        logging.info(f"DistributionManager: Resource optimization: {adjustment}")
+        return adjustment
+
+    # • Discover available services, simulate delay, log, and return list of services
+    async def discover_services(self):
+        await asyncio.sleep(0.05)
+        services = ["ServiceA", "ServiceB", "ServiceC"]
+        logging.info(f"DistributionManager: Discovered services: {services}")
+        return services
+
+    # • Trigger circuit breaker, simulate delay, log action, and return success status
+    async def circuit_breaker(self):
+        await asyncio.sleep(0.05)
+        logging.info("DistributionManager: Circuit breaker activated.")
+        return True
+
+    # • Advanced task scheduling: sort tasks based on length, log, and return prioritized list
+    async def advanced_task_scheduling(self, tasks):
+        prioritized = sorted(tasks, key=lambda t: len(t))
+        logging.info(f"DistributionManager: Advanced task scheduling: {prioritized}")
+        return prioritized
+
+    # • Process a single task: get a worker, execute task, update shared state, and return result
+    async def process_task(self, task):
+        worker = await self.load_balancer.get_worke

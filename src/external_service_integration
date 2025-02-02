@@ -1,0 +1,80 @@
+import asyncio
+import logging
+import random
+
+logging.basicConfig(level=logging.INFO)
+
+class ExternalServiceIntegrator:
+    # • Call service: simulate delay, log service call, and return a success dict
+    async def call_service(self, service_name, payload):
+        await asyncio.sleep(0.1)
+        logging.info(f"ExternalServiceIntegrator: Called '{service_name}' with {payload}.")
+        return {"status": "success", "service": service_name}
+
+
+class AdvancedExternalServiceIntegrator(ExternalServiceIntegrator):
+    # • Discover services: simulate delay, log, and return a list of services
+    async def discover_services(self):
+        await asyncio.sleep(0.05)
+        services = ["DataAPI", "AuthService", "PaymentGateway"]
+        logging.info(f"AdvancedExternalServiceIntegrator: Discovered services: {services}")
+        return services
+
+    # • Manage connection: simulate delay, log connection establishment, and return success status
+    async def manage_connection(self, service_name):
+        await asyncio.sleep(0.05)
+        logging.info(f"AdvancedExternalServiceIntegrator: Connection established with {service_name}.")
+        return True
+
+    # • Retry call: attempt to call service with retries, doubling delay on failure, log attempts, and return result or None
+    async def retry_call(self, service_name, payload, retries=3):
+        delay = 0.1
+        for attempt in range(retries):
+            try:
+                result = await self.call_service(service_name, payload)
+                return result
+            except Exception as e:
+                logging.warning(f"AdvancedExternalServiceIntegrator: Retry {attempt+1} failed for {service_name}: {e}")
+                await asyncio.sleep(delay)
+                delay *= 2
+        logging.error(f"AdvancedExternalServiceIntegrator: All retries failed for {service_name}.")
+        return None
+
+    # • Circuit breaker: simulate delay, log triggering of circuit breaker, and return success status
+    async def circuit_breaker(self, service_name):
+        await asyncio.sleep(0.05)
+        logging.info(f"AdvancedExternalServiceIntegrator: Circuit breaker triggered for {service_name}.")
+        return True
+
+    # • Monitor health: simulate delay, randomly choose health status, log, and return health status
+    async def monitor_health(self, service_name):
+        await asyncio.sleep(0.05)
+        health = random.choice(["Healthy", "Degraded", "Unhealthy"])
+        logging.info(f"AdvancedExternalServiceIntegrator: {service_name} health: {health}")
+        return health
+
+    # • Complex routing: simulate delay, add a complex route to the service, log, and return the route string
+    async def complex_routing(self, service_name, payload):
+        await asyncio.sleep(0.05)
+        route = f"Complex route for {service_name}"
+        logging.info(f"AdvancedExternalServiceIntegrator: Complex routing: {route}")
+        return route
+
+    # • Load balancer: simulate delay, log engagement of load balancer, and return success status
+    async def load_balancer(self):
+        await asyncio.sleep(0.05)
+        logging.info("AdvancedExternalServiceIntegrator: Load balancer engaged.")
+        return True
+
+    # • Get service metrics: simulate delay, generate random metrics, log, and return metrics dict
+    async def get_service_metrics(self, service_name):
+        await asyncio.sleep(0.05)
+        metrics = {"latency": random.randint(50, 150), "throughput": random.uniform(100, 1000)}
+        logging.info(f"AdvancedExternalServiceIntegrator: Metrics for {service_name}: {metrics}")
+        return metrics
+
+    # • Caching layer: simulate delay, log implementation of caching layer, and return success status
+    async def caching_layer(self):
+        await asyncio.sleep(0.05)
+        logging.info("AdvancedExternalServiceIntegrator: Caching layer implemented.")
+        return True

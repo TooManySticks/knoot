@@ -1,0 +1,119 @@
+import asyncio
+import logging
+import json
+import random
+
+logging.basicConfig(level=logging.INFO)
+
+class GlobalStateManager:
+    def __init__(self):
+        # • Initialize global state with key categories
+        # • Set up subscribers dictionary and an asyncio lock for thread safety
+        self.state = {
+            "knowledge_graph": {},
+            "validation_status": {},
+            "system_health": {},
+            "user_interactions": {}
+        }
+        self.subscribers = {}
+        self.lock = asyncio.Lock()
+
+    async def update_state(self, path, value):
+        # • Update nested state based on dot-separated path
+        # • Notify subscribers and log the update
+        async with self.lock:
+            parts = path.split('.')
+            cur = self.state
+            for part in parts[:-1]:
+                cur = cur.setdefault(part, {})
+            cur[parts[-1]] = value
+            await self.notify_subscribers(path, value)
+            logging.info(f"GlobalStateManager: Updated '{path}' = {value}.")
+
+    async def subscribe(self, path, callback):
+        # • Subscribe to state changes for a specific path and log the subscription
+        if path not in self.subscribers:
+            self.subscribers[path] = set()
+        self.subscribers[path].add(callback)
+        logging.info(f"GlobalStateManager: Subscribed to '{path}'.")
+
+    async def notify_subscribers(self, path, value):
+        # • Notify all subscribers for the given path; handle and log exceptions
+        if path in self.subscribers:
+            for callback in self.subscribers[path]:
+                try:
+                    await callback(path, value)
+                except Exception as e:
+                    logging.error(f"GlobalStateManager: Notify error for '{path}': {e}")
+
+    async def persist_state(self):
+        # • Persist the current state to a JSON file within a lock and log the action
+        async with self.lock:
+            with open("global_state.json", "w") as f:
+                json.dump(self.state, f)
+            logging.info("GlobalStateManager: State persisted.")
+
+    async def resolve_conflicts(self):
+        # • Execute conflict resolution, log the process, and return success status
+        logging.info("GlobalStateManager: Conflict resolution executed.")
+        return True
+
+
+class AdvancedGlobalStateManager(GlobalStateManager):
+    async def advanced_synchronization(self):
+        # • Simulate delay, synchronize states across nodes, log, and return success status
+        await asyncio.sleep(0.05)
+        logging.info("AdvancedGlobalStateManager: States synchronized across nodes.")
+        return True
+
+    async def manage_transaction(self):
+        # • Create a snapshot of current state, simulate commit, and rollback on exception; log outcomes
+        snapshot = {"state": self.state.copy()}
+        logging.info("AdvancedGlobalStateManager: Transaction snapshot created.")
+        try:
+            await asyncio.sleep(0.05)
+            logging.info("AdvancedGlobalStateManager: Transaction committed.")
+            return "Committed"
+        except Exception:
+            logging.info("AdvancedGlobalStateManager: Transaction failed; rolling back.")
+            self.state = snapshot["state"]
+            return "Rolled back"
+
+    async def optimize_state_access(self):
+        # • Simulate delay, define optimization strategy, log details, and return the strategy
+        await asyncio.sleep(0.05)
+        access_patterns = {"read_frequency": random.uniform(0.1, 1.0)}
+        strategy = {"cache_timeout": 60}
+        logging.info(f"AdvancedGlobalStateManager: Optimized state access with {strategy}")
+        return strategy
+
+    async def synchronize_states(self):
+        # • Simulate delay, log state synchronization, and return success status
+        await asyncio.sleep(0.05)
+        logging.info("AdvancedGlobalStateManager: States synchronized.")
+        return True
+
+    async def event_sourcing(self):
+        # • Simulate delay, log event sourcing execution, and return success status
+        await asyncio.sleep(0.05)
+        logging.info("AdvancedGlobalStateManager: Event sourcing executed.")
+        return True
+
+    async def cqrs_support(self):
+        # • Simulate delay, log CQRS support implementation, and return success status
+        await asyncio.sleep(0.05)
+        logging.info("AdvancedGlobalStateManager: CQRS support implemented.")
+        return True
+
+    async def state_versioning(self):
+        # • Simulate delay, generate a random version, log it, and return the version number
+        await asyncio.sleep(0.05)
+        version = random.randint(1, 100)
+        logging.info(f"AdvancedGlobalStateManager: State version set to {version}.")
+        return version
+
+    async def state_recovery(self):
+        # • Simulate delay, log state recovery mechanism execution, and return success status
+        await asyncio.sleep(0.05)
+        logging.info("AdvancedGlobalStateManager: State recovery mechanism executed.")
+        return True

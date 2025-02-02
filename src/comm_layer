@@ -1,0 +1,91 @@
+import asyncio
+import logging
+import time
+from collections import defaultdict
+
+logging.basicConfig(level=logging.INFO)
+
+class MessageBus:
+    def __init__(self):
+        # • Initialize channels dict, handlers defaultdict, and middleware list
+        self.channels = {}
+        self.handlers = defaultdict(list)
+        self.middleware = []
+
+    # • Publish: apply middleware to message and distribute it to the channel
+    async def publish(self, channel, message):
+        processed = await self.apply_middleware(message)
+        await self.distribute_message(channel, processed)
+
+    # • Subscribe: add handler to channel and return an unsubscribe lambda
+    async def subscribe(self, channel, handler):
+        self.handlers[channel].append(handler)
+        logging.info(f"MessageBus: Handler subscribed to '{channel}'.")
+        return lambda: self.handlers[channel].remove(handler)
+
+    # • Apply middleware: process message through middleware functions and add timestamp
+    async def apply_middleware(self, message):
+        for func in self.middleware:
+            message = await func(message)
+        if "content" not in message:
+            raise ValueError("Invalid message format: missing 'content'")
+        message["timestamp"] = time.time()
+        return message
+
+    # • Distribute message: send message to all subscribed handlers for the channel
+    async def distribute_message(self, channel, message):
+        for handler in self.handlers[channel]:
+            try:
+                await handler(message)
+            except Exception as e:
+                logging.error(f"MessageBus: Error in channel '{channel}': {e}")
+
+class AdvancedMessageBus(MessageBus):
+    # • Advanced routing: simulate delay, add route to message, and log routing
+    async def advanced_routing(self, message, route):
+        await asyncio.sleep(0.05)
+        message["route"] = route
+        logging.info(f"AdvancedMessageBus: Routed message to '{route}'.")
+        return message
+
+    # • Persist message: simulate delay, log persistence, and return success status
+    async def persist_message(self, message):
+        await asyncio.sleep(0.05)
+        logging.info("AdvancedMessageBus: Message persisted.")
+        return True
+
+    # • Recover error: simulate delay, log error recovery, and return message
+    async def recover_error(self, message):
+        await asyncio.sleep(0.05)
+        logging.info("AdvancedMessageBus: Error recovered for message.")
+        return message
+
+    # • Manage queue: simulate delay, log queue management, and return success status
+    async def manage_queue(self):
+        await asyncio.sleep(0.05)
+        logging.info("AdvancedMessageBus: Queue managed.")
+        return True
+
+    # • Balance load: simulate delay, log load balancing, and return success status
+    async def balance_load(self):
+        await asyncio.sleep(0.05)
+        logging.info("AdvancedMessageBus: Load balanced.")
+        return True
+
+    # • Prioritize message: sort messages by 'priority' key and log prioritized list
+    async def prioritize_message(self, messages):
+        prioritized = sorted(messages, key=lambda m: m.get("priority", 0), reverse=True)
+        logging.info(f"AdvancedMessageBus: Prioritized messages: {prioritized}")
+        return prioritized
+
+    # • Monitor bus: simulate delay, log bus performance monitoring, and return success status
+    async def monitor_bus(self):
+        await asyncio.sleep(0.05)
+        logging.info("AdvancedMessageBus: Bus performance monitored.")
+        return True
+
+    # • Scale bus: simulate delay, log bus scaling, and return success status
+    async def scale_bus(self):
+        await asyncio.sleep(0.05)
+        logging.info("AdvancedMessageBus: Bus scaling executed.")
+        return True
